@@ -10,10 +10,13 @@ environment:
   sdk: ^3.5.3
 
 dependencies:
+  animations: ^2.0.11
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
+  google_fonts: ^6.2.1
+  lottie: ^3.2.0
 
 dev_dependencies:
   flutter_test:
@@ -30,3 +33,6 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - assets/animations/bad-score-animation.json
+    - assets/animations/medium-score-animation.json
+    - assets/animations/high-score-animation.json
