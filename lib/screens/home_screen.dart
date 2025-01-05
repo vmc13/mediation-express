@@ -1,8 +1,9 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mediation_express/screens/instructions_screen.dart';
-import 'package:mediation_express/screens/quiz_screen.dart';
+import 'package:mediation_express/screens/levels_screen.dart';
+
+import '../widgets/animatedButton_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -33,62 +34,21 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildAnimatedButton(
+              AnimatedbuttonWidget(
                 context: context,
                 label: 'JOGAR',
-                targetScreen: const QuizScreen(),
+                targetScreen: const LevelsScreen(),
                 color: Colors.purpleAccent,
                 icon: Icons.play_arrow,
               ),
               const SizedBox(height: 20),
-              _buildAnimatedButton(
+              AnimatedbuttonWidget(
                 context: context,
                 label: 'INSTRUÇÕES',
-                targetScreen: InstructionsScreen(),
+                targetScreen: const InstructionsScreen(),
                 color: Colors.purpleAccent,
                 icon: Icons.play_arrow,
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnimatedButton({
-    required BuildContext context,
-    required String label,
-    required Widget targetScreen,
-    required Color color,
-    required IconData icon,
-  }) {
-    return OpenContainer(
-      transitionType: ContainerTransitionType.fade,
-      closedElevation: 6,
-      closedShape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      closedColor: color,
-      openBuilder: (context, _) => targetScreen,
-      closedBuilder: (context, openContainer) => InkWell(
-        onTap: openContainer,
-        child: Container(
-          width: 200,
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 10),
-              Text(
-                label,
-                style:
-                    GoogleFonts.pressStart2p(fontSize: 14, color: Colors.white),
-              )
             ],
           ),
         ),

@@ -1,13 +1,20 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../data/questions.dart';
-import 'result_screen.dart'; // Importe o arquivo de perguntas
+import '../model/question.dart';
 
+// Tela do Quiz
 class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key});
+  final List<Question> questions;
+  final String level;
+  final Function(String medal) onLevelCompleted;
+
+  const QuizScreen({
+    Key? key,
+    required this.questions,
+    required this.level,
+    required this.onLevelCompleted,
+  }) : super(key: key);
 
   @override
   _QuizScreenState createState() => _QuizScreenState();
@@ -19,54 +26,79 @@ class _QuizScreenState extends State<QuizScreen> {
   String feedbackMessage = "";
   List<Color?> buttonColors = [null, null, null];
 
-  void handleAnswer(int selectedIndex) {
-    final correctAnswerIndex =
-        questions[currentQuestionIndex]['correctAnswerIndex'] as int;
+  @override
+  void initState() {
+    super.initState();
+    if (widget.questions.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text("Nenhuma pergunta disponível para este nível!")),
+        );
+        Navigator.pop(context);
+      });
+    }
+  }
+
+  void _handleAnswer(int selectedIndex) {
+    final question = widget.questions[currentQuestionIndex];
 
     setState(() {
-      if (selectedIndex == correctAnswerIndex) {
+      if (selectedIndex == question.correctAnswerIndex) {
         buttonColors[selectedIndex] = Colors.green;
-        feedbackMessage = 'Parabéns! Você ganhou 1 ponto.';
+        feedbackMessage = 'Parabéns! Você ganhou 1 ponto!';
         score++;
       } else {
         buttonColors[selectedIndex] = Colors.red;
-        buttonColors[correctAnswerIndex] = Colors.green;
-        feedbackMessage =
-            questions[currentQuestionIndex]['explanation'] as String;
+        buttonColors[question.correctAnswerIndex] = Colors.green;
+        feedbackMessage = question.explanation;
       }
     });
 
     Future.delayed(const Duration(seconds: 3), () {
-      if (currentQuestionIndex < questions.length - 1) {
+      if (currentQuestionIndex < widget.questions.length - 1) {
         setState(() {
           currentQuestionIndex++;
           feedbackMessage = "";
           buttonColors = [null, null, null];
         });
       } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ResultScreen(score: score),
-          ),
-        );
+        final medal = _getMedal();
+        widget.onLevelCompleted(medal);
+        Navigator.pop(context);
       }
     });
   }
 
+  String _getMedal() {
+    double percentage = (score / widget.questions.length) * 100;
+    if (percentage >= 80) {
+      return 'ouro';
+    } else if (percentage >= 50) {
+      return 'prata';
+    } else {
+      return 'bronze';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final question = questions[currentQuestionIndex]['question'] as String;
-    final options = questions[currentQuestionIndex]['options'] as List<String>;
+    if (widget.questions.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text("Quiz")),
+        body: const Center(
+          child: Text("Nenhuma pergunta disponível para este nível!"),
+        ),
+      );
+    }
+
+    final question = widget.questions[currentQuestionIndex];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Quiz de Mediação',
-          style: GoogleFonts.pressStart2p(
-            fontSize: 20,
-            color: Colors.white,
-          ),
+          'Quiz - Nível ${widget.level}',
+          style: GoogleFonts.pressStart2p(fontSize: 20, color: Colors.white),
         ),
         backgroundColor: Colors.deepPurple,
         elevation: 0,
@@ -75,10 +107,7 @@ class _QuizScreenState extends State<QuizScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.deepPurple,
-              Colors.purpleAccent,
-            ],
+            colors: [Colors.deepPurple, Colors.purpleAccent],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -86,61 +115,42 @@ class _QuizScreenState extends State<QuizScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  question,
-                  style: GoogleFonts.roboto(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+              Text(
+                question.scenario,
+                style:
+                    GoogleFonts.pressStart2p(fontSize: 16, color: Colors.white),
+                textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 16.0),
-              ...List.generate(options.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+              const SizedBox(height: 20),
+              for (int i = 0; i < question.options.length; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: buttonColors[index] ?? Colors.white,
-                      foregroundColor: buttonColors[index] == null
-                          ? Colors.black87
-                          : Colors.white,
+                      backgroundColor:
+                          buttonColors[i] ?? Colors.deepPurpleAccent,
+                      minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      elevation: 5,
-                      textStyle: GoogleFonts.roboto(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w500,
-                      ),
                     ),
-                    onPressed: buttonColors.contains(Colors.green) ||
-                            buttonColors.contains(Colors.red)
-                        ? null
-                        : () => handleAnswer(index),
-                    child: Text(options[index]),
+                    onPressed:
+                        buttonColors[i] == null ? () => _handleAnswer(i) : null,
+                    child: Text(
+                      question.options[i],
+                      style: GoogleFonts.pressStart2p(
+                          fontSize: 14, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                );
-              }),
-              const SizedBox(height: 16.0),
+                ),
+              const SizedBox(height: 20),
               Text(
                 feedbackMessage,
-                style: GoogleFonts.roboto(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold,
-                  color: feedbackMessage.startsWith('Parabéns')
-                      ? Colors.green
-                      : Colors.red,
-                ),
+                style: GoogleFonts.pressStart2p(
+                    fontSize: 14, color: Colors.yellow),
                 textAlign: TextAlign.center,
               ),
             ],
