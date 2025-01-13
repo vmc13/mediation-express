@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/flutter,dart
-# Edit at https://www.toptal.com/developers/gitignore?templates=flutter,dart
+# Created by https://www.toptal.com/developers/gitignore/api/flutter,visualstudiocode,dart,firebase
+# Edit at https://www.toptal.com/developers/gitignore?templates=flutter,visualstudiocode,dart,firebase
 
 ### Dart ###
 # See https://www.dartlang.org/guides/libraries/private-files
@@ -33,6 +33,15 @@ doc/api/
 ### Dart Patch ###
 # dotenv environment variables file
 .env
+
+### Firebase ###
+.idea
+**/node_modules/*
+**/.firebaserc
+
+### Firebase Patch ###
+.runtimeconfig.json
+.firebase/
 
 ### Flutter ###
 # Flutter/Dart/Pub related
@@ -93,4 +102,24 @@ lib/generated_plugin_registrant.dart
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 
-# End of https://www.toptal.com/developers/gitignore/api/flutter,dart
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# End of https://www.toptal.com/developers/gitignore/api/flutter,visualstudiocode,dart,firebase
+
