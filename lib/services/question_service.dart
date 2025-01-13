@@ -1,15 +1,16 @@
 import '../data/questions.dart';
 import '../model/question.dart';
-//CORRIGIR SERVIÇO - NAO ESTA RETORNANDO OS DADOS CORRETAMENTE DO JSON
+
 class QuestionService {
   static List<Question> getQuestionsForLevel(int level) {
-    final levelData = questionsJson.firstWhere(
-      (q) => q['level'] == level.toString(), // Comparando com a string do nível
-      orElse: () => {'questions': []},
-    );
+    // Filtra as perguntas pelo nível correspondente
+    final List<Map<String, dynamic>> filteredQuestions = questionsJson[0]['questions']
+        .where((q) => q['level'] == level.toString())
+        .toList();
 
-    return (levelData['questions'] as List)
-        .map((q) => Question.fromJson(q as Map<String, Object>))
+    // Mapeia as perguntas filtradas para objetos Question
+    return filteredQuestions
+        .map((q) => Question.fromJson(q))
         .toList();
   }
 }

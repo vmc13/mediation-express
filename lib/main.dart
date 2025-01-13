@@ -14,7 +14,7 @@ class AppWidget extends StatelessWidget {
     return MaterialApp(
       title: "Mediação Express",
       theme: ThemeData(useMaterial3: true),
-      home: HomeScreen(),
+      home: const HomeScreen(),
     );
   }
 }

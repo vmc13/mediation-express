@@ -7,38 +7,27 @@ import '../model/question.dart';
 class QuizScreen extends StatefulWidget {
   final List<Question> questions;
   final String level;
-  final Function(String medal) onLevelCompleted;
+  final int requiredCorrectAnswers;
+  final VoidCallback onLevelCompleted;
 
   const QuizScreen({
-    Key? key,
+    super.key,
     required this.questions,
     required this.level,
+    required this.requiredCorrectAnswers,
     required this.onLevelCompleted,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _QuizScreenState createState() => _QuizScreenState();
 }
 
 class _QuizScreenState extends State<QuizScreen> {
   int currentQuestionIndex = 0;
-  int score = 0;
+  int correctAnswers = 0;
   String feedbackMessage = "";
   List<Color?> buttonColors = [null, null, null];
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.questions.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text("Nenhuma pergunta disponível para este nível!")),
-        );
-        Navigator.pop(context);
-      });
-    }
-  }
 
   void _handleAnswer(int selectedIndex) {
     final question = widget.questions[currentQuestionIndex];
@@ -46,8 +35,8 @@ class _QuizScreenState extends State<QuizScreen> {
     setState(() {
       if (selectedIndex == question.correctAnswerIndex) {
         buttonColors[selectedIndex] = Colors.green;
-        feedbackMessage = 'Parabéns! Você ganhou 1 ponto!';
-        score++;
+        feedbackMessage = 'Parabéns! Você acertou!';
+        correctAnswers++;
       } else {
         buttonColors[selectedIndex] = Colors.red;
         buttonColors[question.correctAnswerIndex] = Colors.green;
@@ -55,7 +44,7 @@ class _QuizScreenState extends State<QuizScreen> {
       }
     });
 
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 2), () {
       if (currentQuestionIndex < widget.questions.length - 1) {
         setState(() {
           currentQuestionIndex++;
@@ -63,35 +52,29 @@ class _QuizScreenState extends State<QuizScreen> {
           buttonColors = [null, null, null];
         });
       } else {
-        final medal = _getMedal();
-        widget.onLevelCompleted(medal);
-        Navigator.pop(context);
+        _finishQuiz();
       }
     });
   }
 
-  String _getMedal() {
-    double percentage = (score / widget.questions.length) * 100;
-    if (percentage >= 80) {
-      return 'ouro';
-    } else if (percentage >= 50) {
-      return 'prata';
+  void _finishQuiz() {
+    if (correctAnswers >= widget.requiredCorrectAnswers) {
+      widget.onLevelCompleted();
+      Navigator.pop(context);
     } else {
-      return 'bronze';
+      setState(() {
+        feedbackMessage =
+            "Você precisa acertar pelo menos ${widget.requiredCorrectAnswers} questões para desbloquear o próximo nível.";
+      });
+      Future.delayed(const Duration(seconds: 3), () {
+        // ignore: use_build_context_synchronously
+        Navigator.pop(context);
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.questions.isEmpty) {
-      return Scaffold(
-        appBar: AppBar(title: const Text("Quiz")),
-        body: const Center(
-          child: Text("Nenhuma pergunta disponível para este nível!"),
-        ),
-      );
-    }
-
     final question = widget.questions[currentQuestionIndex];
 
     return Scaffold(

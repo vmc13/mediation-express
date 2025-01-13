@@ -13,10 +13,10 @@ class Question {
     required this.explanation,
   });
 
-  factory Question.fromJson(Map<String, Object> json) {
+  factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
       level: json['level'] as String,
-      scenario: json['question'] as String,
+      scenario: json['scenario'] as String,
       options: List<String>.from(json['options'] as List),
       correctAnswerIndex: json['correctAnswerIndex'] as int,
       explanation: json['explanation'] as String,

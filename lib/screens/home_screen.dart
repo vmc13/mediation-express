@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mediation_express/screens/instructions_screen.dart';
 import 'package:mediation_express/screens/levels_screen.dart';
 
-import '../widgets/animatedButton_widget.dart';
+import '../widgets/animated_button_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

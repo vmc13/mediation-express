@@ -4,11 +4,17 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AnimatedbuttonWidget extends StatefulWidget {
   final BuildContext context;
-    final String label;
-    final Widget targetScreen;
-    final Color color;
-    final IconData icon;
-  const AnimatedbuttonWidget({super.key, required this.context, required this.label, required this.targetScreen, required this.color, required this.icon});
+  final String label;
+  final Widget targetScreen;
+  final Color color;
+  final IconData icon;
+  const AnimatedbuttonWidget(
+      {super.key,
+      required this.context,
+      required this.label,
+      required this.targetScreen,
+      required this.color,
+      required this.icon});
 
   @override
   State<AnimatedbuttonWidget> createState() => _AnimatedbuttonWidgetState();

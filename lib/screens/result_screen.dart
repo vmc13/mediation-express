@@ -4,7 +4,7 @@ import 'package:lottie/lottie.dart'; // Pacote para animações
 class ResultScreen extends StatelessWidget {
   final int score;
 
-  const ResultScreen({required this.score, Key? key}) : super(key: key);
+  const ResultScreen({required this.score, super.key});
 
   String getFeedbackText() {
     if (score <= 5) return 'Ops! Você pode melhorar!';
