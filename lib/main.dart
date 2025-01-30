@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:mediation_express/screens/auth/login_screen.dart';
+
 import 'firebase_options.dart';
 
 void main() async {
@@ -19,7 +20,7 @@ class AppWidget extends StatelessWidget {
     return MaterialApp(
       title: "Mediação Express",
       theme: ThemeData(useMaterial3: true),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 }

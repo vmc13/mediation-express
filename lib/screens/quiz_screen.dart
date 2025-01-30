@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mediation_express/screens/ranking_screen.dart';
 
 import '../model/question.dart';
+import '../services/auth_service.dart';
+import '../services/database_service.dart';
 
-// Tela do Quiz
 class QuizScreen extends StatefulWidget {
   final List<Question> questions;
   final String level;
@@ -19,7 +21,6 @@ class QuizScreen extends StatefulWidget {
   });
 
   @override
-  // ignore: library_private_types_in_public_api
   _QuizScreenState createState() => _QuizScreenState();
 }
 
@@ -28,6 +29,33 @@ class _QuizScreenState extends State<QuizScreen> {
   int correctAnswers = 0;
   String feedbackMessage = "";
   List<Color?> buttonColors = [null, null, null];
+  AuthService authService = AuthService();
+  String? currentUserId;
+  DatabaseService dbService = DatabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserId();
+  }
+
+  Future<void> _getCurrentUserId() async {
+    final String? id = await authService.getCurrentUserId();
+    if (id != null) {
+      setState(() {
+        currentUserId = id;
+      });
+      debugPrint('ID do usuário atual: $currentUserId');
+    } else {
+      debugPrint('Erro: Nenhum usuário autenticado.');
+    }
+  }
+
+  Future<void> _updateScore() async {
+    if (currentUserId != null) {
+      await dbService.updatePlayerScore(currentUserId!, correctAnswers);
+    }
+  }
 
   void _handleAnswer(int selectedIndex) {
     final question = widget.questions[currentQuestionIndex];
@@ -37,6 +65,10 @@ class _QuizScreenState extends State<QuizScreen> {
         buttonColors[selectedIndex] = Colors.green;
         feedbackMessage = 'Parabéns! Você acertou!';
         correctAnswers++;
+        // Atualiza o score no Firestore
+        if (currentUserId != null) {
+          dbService.updatePlayerScore(currentUserId!, correctAnswers);
+        }
       } else {
         buttonColors[selectedIndex] = Colors.red;
         buttonColors[question.correctAnswerIndex] = Colors.green;
@@ -60,14 +92,21 @@ class _QuizScreenState extends State<QuizScreen> {
   void _finishQuiz() {
     if (correctAnswers >= widget.requiredCorrectAnswers) {
       widget.onLevelCompleted();
-      Navigator.pop(context);
+
+      if (widget.level == '3') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const RankingScreen()),
+        );
+      } else {
+        Navigator.pop(context);
+      }
     } else {
       setState(() {
         feedbackMessage =
             "Você precisa acertar pelo menos ${widget.requiredCorrectAnswers} questões para desbloquear o próximo nível.";
       });
       Future.delayed(const Duration(seconds: 3), () {
-        // ignore: use_build_context_synchronously
         Navigator.pop(context);
       });
     }

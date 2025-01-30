@@ -14,3 +14,25 @@ class QuestionService {
         .toList();
   }
 }
+
+
+// class QuestionService {
+//   final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+//   // Salva uma nova questão no Firestore
+//   Future<void> saveQuestion(Question question) async {
+//     await _db.collection('questions').add({
+//       'level': question.level,
+//       'scenario': question.scenario,
+//       'options': question.options,
+//       'correctAnswerIndex': question.correctAnswerIndex,
+//       'explanation': question.explanation,
+//     });
+//   }
+
+//   // Obtém as questões por nível
+//   Future<List<Question>> getQuestionsByLevel(String level) async {
+//     QuerySnapshot query = await _db.collection('questions').where('level', isEqualTo: level).get();
+//     return query.docs.map((doc) => Question.fromJson(doc.data() as Map<String, dynamic>)).toList();
+//   }
+// }

@@ -5,7 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../services/question_service.dart';
 
 class LevelsScreen extends StatefulWidget {
-  const LevelsScreen({super.key});
+  const LevelsScreen({
+    super.key,
+  });
 
   @override
   State<LevelsScreen> createState() => _LevelsScreenState();
@@ -15,7 +17,7 @@ class _LevelsScreenState extends State<LevelsScreen> {
   int completedLevels = 0;
   final int requiredCorrectAnswers = 1;
 
-   @override
+  @override
   void initState() {
     super.initState();
     _loadCompletedLevels();
