@@ -1,5 +1,5 @@
 name: mediation_express
-description: "A new Flutter project."
+description: "O Mediation Express é um aplicativo móvel gamificado desenvolvido para facilitar o aprendizado de mediação de conflitos em sala de aula."
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
@@ -16,10 +16,12 @@ dependencies:
   firebase_core: ^3.10.1
   flutter:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.3
   flutter_localizations:
     sdk: flutter
   google_fonts: ^6.2.1
   lottie: ^3.2.0
+  lucide_icons: ^0.257.0
   shared_preferences: ^2.3.5
 
 dev_dependencies:
@@ -27,6 +29,13 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^4.0.0
+  
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/me-logo-no-bg.png"
+  adaptive_icon_background: "#ffffff"  # (Opcional para Android)
+  adaptive_icon_foreground: "assets/images/me-logo-white-bg.png"
 
 flutter:
   uses-material-design: true

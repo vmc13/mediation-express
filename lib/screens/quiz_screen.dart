@@ -5,6 +5,7 @@ import 'package:mediation_express/screens/ranking_screen.dart';
 import '../model/question.dart';
 import '../services/auth_service.dart';
 import '../services/database_service.dart';
+import '../widgets/grandient_background.dart';
 
 class QuizScreen extends StatefulWidget {
   final List<Question> questions;
@@ -31,6 +32,7 @@ class _QuizScreenState extends State<QuizScreen> {
   List<Color?> buttonColors = [null, null, null];
   AuthService authService = AuthService();
   String? currentUserId;
+  int unlockedLevel = 1;
   DatabaseService dbService = DatabaseService();
 
   @override
@@ -40,12 +42,18 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   Future<void> _getCurrentUserId() async {
-    final String? id = await authService.getCurrentUserId();
+    final String? id = authService.getCurrentUserId();
     if (id != null) {
       setState(() {
         currentUserId = id;
       });
       debugPrint('ID do usuário atual: $currentUserId');
+
+      // Buscar o nível do jogador ao fazer login
+      int userLevel = await dbService.getPlayerLevel(currentUserId!);
+      setState(() {
+        unlockedLevel = userLevel; // Atualiza a UI
+      });
     } else {
       debugPrint('Erro: Nenhum usuário autenticado.');
     }
@@ -53,7 +61,7 @@ class _QuizScreenState extends State<QuizScreen> {
 
   Future<void> _updateScore() async {
     if (currentUserId != null) {
-      await dbService.updatePlayerScore(currentUserId!, correctAnswers);
+      await dbService.incrementPlayerScore(currentUserId!);
     }
   }
 
@@ -67,7 +75,7 @@ class _QuizScreenState extends State<QuizScreen> {
         correctAnswers++;
         // Atualiza o score no Firestore
         if (currentUserId != null) {
-          dbService.updatePlayerScore(currentUserId!, correctAnswers);
+          _updateScore();
         }
       } else {
         buttonColors[selectedIndex] = Colors.red;
@@ -93,6 +101,12 @@ class _QuizScreenState extends State<QuizScreen> {
     if (correctAnswers >= widget.requiredCorrectAnswers) {
       widget.onLevelCompleted();
 
+      // Se o usuário passar de nível, salva no Firestore
+      int nextLevel = int.parse(widget.level) + 1;
+      if (currentUserId != null) {
+        dbService.updatePlayerLevel(currentUserId!, nextLevel);
+      }
+
       if (widget.level == '3') {
         Navigator.pushReplacement(
           context,
@@ -116,69 +130,63 @@ class _QuizScreenState extends State<QuizScreen> {
   Widget build(BuildContext context) {
     final question = widget.questions[currentQuestionIndex];
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Quiz - Nível ${widget.level}',
-          style: GoogleFonts.pressStart2p(fontSize: 20, color: Colors.white),
-        ),
-        backgroundColor: Colors.deepPurple,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.deepPurple, Colors.purpleAccent],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+    return GradientScaffold(
+        appBar: AppBar(
+          title: Text(
+            'Quiz - Nível ${widget.level}',
+            style: GoogleFonts.pressStart2p(fontSize: 20, color: Colors.white),
           ),
+          backgroundColor: Colors.deepPurple,
+          elevation: 0,
+          centerTitle: true,
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                question.scenario,
-                style:
-                    GoogleFonts.pressStart2p(fontSize: 16, color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              for (int i = 0; i < question.options.length; i++)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          buttonColors[i] ?? Colors.deepPurpleAccent,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    onPressed:
-                        buttonColors[i] == null ? () => _handleAnswer(i) : null,
-                    child: Text(
-                      question.options[i],
-                      style: GoogleFonts.pressStart2p(
-                          fontSize: 14, color: Colors.white),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text(
+                  question.scenario,
+                  style: GoogleFonts.pressStart2p(
+                      fontSize: 14, color: Colors.white),
+                  textAlign: TextAlign.start,
                 ),
-              const SizedBox(height: 20),
-              Text(
-                feedbackMessage,
-                style: GoogleFonts.pressStart2p(
-                    fontSize: 14, color: Colors.yellow),
-                textAlign: TextAlign.center,
-              ),
-            ],
+                const SizedBox(height: 20),
+                for (int i = 0; i < question.options.length; i++)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: buttonColors[i] ?? Colors.deepOrange,
+                          minimumSize: const Size(double.infinity, 50),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: buttonColors[i] == null
+                            ? () => _handleAnswer(i)
+                            : null,
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text(
+                            question.options[i],
+                            style: GoogleFonts.pressStart2p(
+                                fontSize: 14, color: Colors.white),
+                            textAlign: TextAlign.start,
+                          ),
+                        )),
+                  ),
+                const SizedBox(height: 20),
+                Text(
+                  feedbackMessage,
+                  style: GoogleFonts.pressStart2p(
+                      fontSize: 12, color: Colors.yellow),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 }

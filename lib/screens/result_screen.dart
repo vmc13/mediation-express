@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart'; // Pacote para animações
+import 'package:lottie/lottie.dart';
+
+import '../widgets/grandient_background.dart'; // Pacote para animações
 
 class ResultScreen extends StatelessWidget {
   final int score;
@@ -20,7 +22,7 @@ class ResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text('Resultado', style: TextStyle(fontSize: 24.0)),
         centerTitle: true,
@@ -28,13 +30,6 @@ class ResultScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.purple.shade200, Colors.purple.shade800],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
